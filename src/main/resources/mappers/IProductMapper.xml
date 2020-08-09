@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fh.shop.admin.mapper.product.IProductMapper">
+	<sql id="sqlWhere">
+		<!-- 动态条件查询 -->
+		<where>
+            <if test="productName!=null and productName!=''">
+				productName like concat('%',#{productName},'%')
+			</if>
+			<if test="minDate != null">
+				and createDate >= #{minDate}
+			</if>
+			<if test="maxDate != null">
+				and createDate &lt;= #{maxDate}
+			</if>
+			<if test="minPrice != null">
+				and price >= #{minPrice}
+			</if>
+			<if test="maxPrice != null">
+				and price &lt;= #{maxPrice}
+			</if>
+			<if test="brandId!=null and brandId!=-1">
+				and brandId=#{brandId}
+			</if>
+		</where>
+	</sql>
+
+	<select id="findCount" parameterType="com.fh.shop.admin.param.ProductParam" resultType="long">
+		select count(*) from t_product
+		<include refid="sqlWhere"></include>
+	</select>
+
+	<select id="findPageList" parameterType="com.fh.shop.admin.param.ProductParam" resultType="com.fh.shop.admin.po.Product">
+		select * from t_product p left join t_brand b
+		on p.brandId = b.id
+		<include refid="sqlWhere"></include>
+		limit #{start},#{length}
+	</select>
+    <select id="findById" parameterType="long" resultType="com.fh.shop.admin.po.Product">
+		select * from t_product p left join t_brand b
+		on p.brandId = b.id
+		where p.id=#{id}
+		order by p.id desc
+
+	</select>
+</mapper>
